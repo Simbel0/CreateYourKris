@@ -143,6 +143,14 @@ function CYKDataChecker()
     elseif type(backgroundfade) ~= "boolean" then error("The encounter must have a variable named backgroundfade as a boolean, but it is a " .. type(backgroundfade) .. ".\nbackgroundfade tells the engine if it should fade the background out when the enemies talk and fade the background in when the wave ends.")
     end
 
+    if chapter2 == nil then
+        if debug then DEBUG("chapter2 was not found. Setting to false.") end
+        chapter2=false
+    elseif type(chapter2)~="boolean" then
+        DEBUG("[WARN] chapter2 must be a boolean, but it was a "..type(chapter2)..".\nSetting to false.")
+        chapter2=false
+    end
+
     if HandleItem == nil then if debug then    DEBUG("[WARN] Encounter: HandleItem() missing.") end
     elseif type(HandleItem) ~= "function" then error("The encounter can have a variable named HandleItem as a function, but it is a " .. type(HandleItem) .. ".")
     end

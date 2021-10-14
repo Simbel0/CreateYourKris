@@ -4,7 +4,7 @@ _ENV = newENV
 -- Sets an entity's sprite. Mostly useless as most of CYK's entities use animations.
 function SetSprite(path)
     if type(path) ~= "string" then
-        error("entity.SetSprite() needs one argument which is a string.", 2)
+        error("entity.SetSprite() needs one argument which is a string.")
     end
     sprite.Set(path)
 end
@@ -14,7 +14,7 @@ function SetActive(newActive)
     local pool = UI and CYK.players or CYK.enemies
     -- You can't disable the last remaining player
     if UI and #CYK.players == 1 and self == CYK.players[1] and not newActive then
-        error("Tried to deactivate the last remaining player.", 2)
+        error("Tried to deactivate the last remaining player.")
     end
     -- Disabling an entity
     if isactive and not newActive then
@@ -75,7 +75,7 @@ end
 -- Tries to kill the enemy. If the enemy has a function named OnDeath(), it will fire it instead
 function TryKill()
     if UI then
-        error("You can only use entity.TryKill() on an enemy entity.", 2)
+        error("You can only use entity.TryKill() on an enemy entity.")
     else
         if OnDeath then
             ProtectedCYKCall(OnDeath)
@@ -88,10 +88,11 @@ end
 -- Kills the enemy directly, without checking if a function named OnDeath() exists
 function Kill(cancelAnim)
     if UI then
-        error("You can only use entity.Kill() on an enemy entity.", 2)
+        error("You can only use entity.Kill() on an enemy entity.")
     else
         SetActive(false)
         spareOrFleeAnim = "flee"
+        CYK.stronger = true
         if not cancelAnim then
             spareOrFleeStart = CYK.frame
         end
@@ -101,7 +102,7 @@ end
 -- Tries to spare the enemy. If the enemy has a function named OnSpare(), it will fire it instead
 function TrySpare(cancelAnim)
     if UI then
-        error("You can only use entity.TrySpare() on an enemy entity.", 2)
+        error("You can only use entity.TrySpare() on an enemy entity.")
     else
         if OnSpare then
             ProtectedCYKCall(OnSpare)
@@ -114,7 +115,7 @@ end
 -- Kills the enemy directly, without checking if a function named OnSpare() exists
 function Spare()
     if UI then
-        error("You can only use entity.Spare() on an enemy entity.", 2)
+        error("You can only use entity.Spare() on an enemy entity.")
     else
         SetActive(false)
         spareOrFleeAnim = "spare"
@@ -127,7 +128,7 @@ end
 -- Moves the entity from where it was
 function Move(x, y)
     if type(x) ~= "number" or type(y) ~= "number" then
-        error("entity.Move() needs two numbers as arguments.", 2)
+        error("entity.Move() needs two numbers as arguments.")
     end
     sprite.x = sprite.x + x
     posX = posX + x
@@ -138,18 +139,18 @@ end
 -- Moves the entity from its parent's position (which is the bottom left corner of the screen if it has none)
 function MoveTo(x, y)
     if type(x) ~= "number" or type(y) ~= "number" then
-        error("entity.MoveTo() needs two numbers as arguments.", 2)
+        error("entity.MoveTo() needs two numbers as arguments.")
     end
     sprite.x = x
-    posX = sprite.absx
+    posX = absx
     sprite.y = y
-    posY = sprite.absy
+    posY = absy
 end
 
 -- Moves the entity from the bottom left corner of the screen
 function MoveToAbs(x, y)
     if type(x) ~= "number" or type(y) ~= "number" then
-        error("entity.MoveToAbs() needs two numbers as arguments.", 2)
+        error("entity.MoveToAbs() needs two numbers as arguments.")
     end
     sprite.absx = x
     posX = x
@@ -167,7 +168,7 @@ end
 -- Sets the next amount of damage to deal to this entity the next time an Attack() function is fired with it as an argument
 function SetDamage(dmg)
     if type(dmg) ~= "number" then
-        error("entity.SetDamage() needs one number as argument.", 2)
+        error("entity.SetDamage() needs one number as argument.")
     end
     presetDamage = -dmg
 end
@@ -181,7 +182,7 @@ function SetBubbleOffset(x, y)
         return
     end
     if type(x) ~= "number" or type(y) ~= "number" then
-        error("entity.SetBubbleOffset() needs two numbers as arguments.", 2)
+        error("entity.SetBubbleOffset() needs two numbers as arguments.")
     end
     bubbleOffsetX = x
     bubbleOffsetY = y
@@ -190,7 +191,7 @@ end
 -- Moves this entity's damage text spawn position from where it originally was
 function SetDamageUIOffset(x, y)
     if type(x) ~= "number" or type(y) ~= "number" then
-        error("entity.SetDamageUIOffset() needs two numbers as arguments.", 2)
+        error("entity.SetDamageUIOffset() needs two numbers as arguments.")
     end
     damageUIOffsetX = x
     damageUIOffsetY = y
@@ -205,7 +206,7 @@ function SetSliceAnimOffset(x, y)
         return
     end
     if type(x) ~= "number" or type(y) ~= "number" then
-        error("entity.SetSliceAnimOffset() needs two numbers as arguments.", 2)
+        error("entity.SetSliceAnimOffset() needs two numbers as arguments.")
     end
     sliceAnimOffsetX = x
     sliceAnimOffsetY = y
@@ -214,7 +215,7 @@ end
 -- Same as CYF: displays an encounter text
 function BattleDialog(text)
     if type(text) ~= "table" or type(text[1]) ~= "string" then
-        error("BattleDialog() needs a table of strings as an argument.", 2)
+        error("BattleDialog() needs a table of strings as an argument.")
     end
     CYK.TxtMgr.SetText(text)
 end
@@ -224,7 +225,7 @@ canmove = true
 -- Heals this entity by a given amount
 function Heal(val)
     if type(val) ~= "number" then
-        error("entity.Heal() needs at least one number as argument.", 2)
+        error("entity.Heal() needs at least one number as argument.")
     end
     CYK.AtkMgr.ChangeHP(self, self, val)
 end
@@ -232,7 +233,7 @@ end
 -- Hurts this entity by a given amount, from another entity
 function Hurt(val, from)
     if type(val) ~= "number" and type(from) ~= "table" and type(from.name) ~= "string" then
-        error("entity.Hurt() needs one number and one entity as arguments.", 2)
+        error("entity.Hurt() needs one number and one entity as arguments.")
     end
     CYK.AtkMgr.ChangeHP(self, from, -val)
 end
@@ -240,7 +241,7 @@ end
 -- Attacks another entity, taking this entity's presetDamage value in account for the damage calculation
 function Attack(target, coeff)
     if type(val) ~= "number" and type(target) ~= "table" and type(target.name) ~= "string" then
-        error("entity.Attack() needs one entity and one number as arguments.", 2)
+        error("entity.Attack() needs one entity and one number as arguments.")
     end
     return CYK.AtkMgr.Attack(target.ID, target.UI ~= nil, ID, UI ~= nil, coeff)
 end
@@ -248,7 +249,7 @@ end
 -- Starts one of this entities' animations. These animations can be found in the table "animations"
 function SetCYKAnimation(anim)
     if type(anim) ~= "string" and type(from) ~= "table" and type(from.name) ~= "string" then
-        error("entity.SetCYKAnimation() needs one string as argument.", 2)
+        error("entity.SetCYKAnimation() needs one string as argument.")
     end
     return CYK.SetAnim(self, anim)
 end
@@ -256,6 +257,75 @@ end
 -- Adds a spell to CYK's spell table
 function AddSpell(name, description, tpCost, targetType)
     return CYK.AddSpell(name, description, tpCost, targetType)
+end
+
+-- Modify the pourcentage of mercy of an enemy
+function ChangeMercyPercent(val, anim, target)    
+    if not chapter2 then error("entity.AddMercyPercent() is a Chapter 2-only function!\n\nSet chapter2 to true in the Encounter file to access it!") end
+    if type(val)~="number" then
+        error("entity.AddMercyPercent() needs a number as its first argument.")
+    end
+    if anim==nil then anim=true end
+    if target==nil then target=self end
+    if type(anim)~="boolean" then
+        error("entity.AddMercyPercent() needs a boolean as its second argument.")
+    end
+    local targetString=false
+    if type(target)=="string" then
+        targetString=true
+    end
+
+    if (type(target)~="table" or (type(target)=="table" and type(target.name)~="string")) and not targetString then
+        error("entity.AddMercyPercent() needs either an enemy or a string saying \"All\" as its third argument.")
+    elseif type(target)=="table" and target.IsPlayer() then
+        error("entity.AddMercyPercent() must be used on an enemy.")
+    end
+
+    if target=="All" or target=="all" then
+        for i=1,#CYK.enemies do
+            if not CYK.enemies[i].useMercyCounter then
+                if CYKDebugLevel>0 then DEBUG("[INFO] entity.AddMercyPercent() was called but the enemy's \"canspare\" has been set to false.") end
+            else
+                CYK.enemies[i].mercyPercent=CYK.enemies[i].mercyPercent+val
+                if CYK.enemies[i].mercyPercent>100 then CYK.enemies[i].mercyPercent=100
+                elseif CYK.enemies[i].mercyPercent<0 then CYK.enemies[i].mercyPercent=0 end
+            end
+        end
+    elseif not targetString then
+        if not target.useMercyCounter then
+            if CYKDebugLevel>0 then DEBUG("[INFO] entity.AddMercyPercent() was called but the enemy's \"canspare\" has been set to false.") end
+            return
+        end
+        target.mercyPercent=target.mercyPercent+val
+        if target.mercyPercent>100 then target.mercyPercent=100
+        elseif target.mercyPercent<0 then target.mercyPercent=0 end
+    else
+        error("entity.AddMercyPercent() needs either an enemy or a string saying \"All\" as its third argument.")
+    end
+
+    if anim then
+        if target=="All" or target=="all" then
+            for i=1,#CYK.enemies do
+                CYK.UI.CreateChangeText(val, CYK.enemies[i], nil, true)
+            end
+        else
+            CYK.UI.CreateChangeText(val, target, nil, true)
+        end
+    end
+end
+
+-- Returns the percentage of mercy of an enemy. Returns -1 if the enemy can't be spared.
+function GetMercyPercent(of)
+    if not chapter2 then
+        error("entity.GetMercyPercent() is a function only usable in a mod with the functionnabilities of Chapter 2!\n\nSet chapter2 to true in the Encounter file to access it.")
+    end
+    if of==nil then of=self end
+    if type(of) ~= "table" and type(of.name) ~= "string" or of.IsPlayer() then error("entity.GetMercyPercent() needs an enemy as its first argument.") end
+    if not of.useMercyCounter then
+        if CYKDebugLevel>0 then DEBUG("[INFO] entity.GetMercyPercent() was called but the enemy's \"canspare\" has been set to false.") end
+        return -1
+    end
+    return of.mercyPercent
 end
 
 -- Prevents the next Player's turn to start if executed
@@ -294,13 +364,13 @@ function AddAct(name, description, tpCost, requiredPlayers)
 
     -- Function usage checking
     if type(name) ~= "string" then
-        error("The first argument of CYK.AddAct() must be a string. (name)", 2)
+        error("The first argument of CYK.AddAct() must be a string. (name)")
     elseif type(description) ~= "string" then
-        error("The second argument of CYK.AddAct() must be a string. (description)", 2)
+        error("The second argument of CYK.AddAct() must be a string. (description)")
     elseif type(tpCost) ~= "number" or tpCost < 0 or tpCost > 100 then
-        error("The third argument of CYK.AddAct() must be a number between 0 and 100. (tpCost)", 2)
+        error("The third argument of CYK.AddAct() must be a number between 0 and 100. (tpCost)")
     elseif requiredPlayers ~= nil and type(requiredPlayers) ~= "table" then
-        error("The fourth argument of CYK.AddAct() must be a table of string values or nil. (requiredPlayers)", 2)
+        error("The fourth argument of CYK.AddAct() must be a table of string values or nil. (requiredPlayers)")
     elseif acts[name] then
         if CYKDebugLevel > 1 then
             DEBUG("[WARN] The act command " .. name .. " already exists in " .. scriptName .. "'s act command database.")

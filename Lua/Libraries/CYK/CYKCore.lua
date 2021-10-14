@@ -9,13 +9,8 @@ return function ()
     end
 
     if not isOK then
-        error("Create Your Kris can only be used in Create Your Frisk v0.6.2.2 or a newer version.", 0)
+        error("Create Your Kris can only be used in Create Your Frisk v0.6.2.2 or a newer version.")
     end
-
-    local spr = CreateSprite("bg")
-    spr.Remove()
-    if spr.isactive then error("Please disable CYF's Retrocompatibility mode before starting this encounter!", 0) end
-    spr = nil
 
     -- Almost everything in CYK is handled in the state NONE!
     OldState("NONE")
@@ -99,6 +94,12 @@ return function ()
     self.grazeHitbox = { sprite = self.grazeHitbox }
 
     self.playerTargets = { } -- Players targeted by the enemies
+
+   -- --Put the chapter2 value "inside CYK's Core" and erase the "normal" value so it looks cooler, I guess...?
+    --self.chapter2 = chapter2
+    --chapter2 = nil
+
+    self.stronger = false -- Define if the players are *becoming stronger* after a battle
 
     -- Triggered when the player presses the Confirm key
     function self.Confirm(force)
@@ -274,12 +275,12 @@ return function ()
                         end
                         -- Build the SPARE text
                         local text = player.name .. (self.CrateYourKris and " SPERD " or " spared ") .. enemy.name .. (self.CrateYourKris and "!!" or "!")
-                        if not enemy.canspare then
+                        if (chapter2 and enemy.mercyPercent<100) or (not chapter2 and not enemy.canspare) then
                             text = text .. (self.CrateYourKris and "\nBTU NO [color:ffff00]YEELO[color:ffffff]!?!" or "\nBut his name was not [color:ffff00]YELLOW[color:ffffff]...")
                         end
                         self.TxtMgr.SetText({ text })
                         ProtectedCYKCall(HandleSpare, player, enemy)
-                        if enemy.canspare then
+                        if (chapter2 and enemy.mercyPercent>=100) or (not chapter2 and enemy.canspare) then
                             -- Actually spare the enemy
                             enemy.TrySpare()
                         end
@@ -385,9 +386,14 @@ return function ()
                 local gradientName = ""
                 -- Adds colors to the enemy names if they're spareable or pacifiable
                 if player.targetType == "Enemy" then
-                    pre = entity.canspare and "[color:ffff00]" or entity.tired and "[color:00b2ff]" or ""
-                    post = "[color:ffffff]      " .. (entity.canspare and "è" or "ê") .. (entity.tired and "é[color:808080](Tired)[color:ffffff]" or "ê")
-                    if entity.canspare and entity.tired then
+                    if chapter2 then
+                        pre = entity.mercyPercent>=100 and "[color:ffff00]" or entity.tired and "[color:00b2ff]" or ""
+                        post = "[color:ffffff]      " .. (entity.mercyPercent>=100 and "è" or "ê") .. (entity.tired and "é[color:808080](Tired)[color:ffffff]" or "ê")
+                    else
+                        pre = entity.canspare and "[color:ffff00]" or entity.tired and "[color:00b2ff]" or ""
+                        post = "[color:ffffff]      " .. (entity.canspare and "è" or "ê") .. (entity.tired and "é[color:808080](Tired)[color:ffffff]" or "ê")
+                    end
+                    if (chapter2 and entity.mercyPercent>=100) or (not chapter2 and canspare) and entity.tired then
                         gradientName = "[color:00b2ff]"
                         local chars = #name - 1
                         -- Gradient effect
@@ -432,7 +438,7 @@ return function ()
                     local isEnemyTired = false
                     local isMultiActPlayerDown = false
                     if dataPool[actionPool[i]] == nil then
-                        error("The " .. (pool == "Magic" and "spell" or "act command") .. " " .. tostring(actionPool[i]) .. " doesn't exist" .. (pool == "Act" and (" for the enemy " .. player.target.sprite["anim"]) or "") .. ".", 2)
+                         error("The " .. (pool == "Magic" and "spell" or "act command") .. " " .. tostring(actionPool[i]) .. " doesn't exist" .. (pool == "Act" and (" for the enemy " .. player.target.sprite["anim"]) or "") .. ".")
                     end
                     cost = dataPool[actionPool[i]].tpCost
                     -- Set the SPELL "Pacify" in blue if an enemy can be put asleep
@@ -525,31 +531,31 @@ return function ()
         -- Tests
         -- Some states need a player index
         if (newState == "ACTIONSELECT" or newState == "ENEMYSELECT" or newState == "ACTMENU" or newState == "ITEMMENU") and (type(arg1) ~= "number" or arg1 < 1 or arg1 > #self.players) then
-            error("The state " .. newState .. " needs its first argument to be the index of the player we're choosing the action of, between 1 and the number of players.", 2)
+            error("The state " .. newState .. " needs its first argument to be the index of the player we're choosing the action of, between 1 and the number of players.")
         -- ENEMYSELECT wrong type
         elseif newState == "ENEMYSELECT" and arg2 ~= "ITEM" and arg2 ~= "FIGHT" and arg2 ~= "ACT" and arg2 ~= "SPELL" and arg2 ~= "SPARE" then
-            error("The state ENEMYSELECT needs its second argument to be either \"ITEM\", \"FIGHT\", \"ACT\", \"SPELL\" or \"SPARE\".", 2)
+            error("The state ENEMYSELECT needs its second argument to be either \"ITEM\", \"FIGHT\", \"ACT\", \"SPELL\" or \"SPARE\".")
         -- ITEM doesn't exist
         elseif newState == "ENEMYSELECT" and arg2 == "ITEM" and (type(arg3) ~= "number" or arg3 < 1 or arg3 > #self.Inventory.GetCurrentInventory().inventory) then
-            error("The state ENEMYSELECT needs its third argument to be the index of the item the player is using, between 1 and the number of items in the player's inventory.", 2)
+            error("The state ENEMYSELECT needs its third argument to be the index of the item the player is using, between 1 and the number of items in the player's inventory.")
         -- ITEM choice when used on all entities
         elseif newState == "ENEMYSELECT" and arg2 == "ITEM" and string.find(self.Inventory.items[self.Inventory.GetCurrentInventory().inventory[arg3]].targetType, "All") then
-            error("You can't choose an entity for the item #" .. tostring(arg3) .. " (" .. self.Inventory.GetCurrentInventory().inventory[arg3] .. ") as it targets all the players or enemies.", 2)
+            error("You can't choose an entity for the item #" .. tostring(arg3) .. " (" .. self.Inventory.GetCurrentInventory().inventory[arg3] .. ") as it targets all the players or enemies.")
         -- SPELL on Player with Act
         elseif newState == "ENEMYSELECT" and arg2 == "SPELL" and table.containsObj(self.players[arg1].abilities, "Act") then
-            error("The Player " .. tostring(self.players[arg1].sprite["anim"]) .. " has the ability \"Act\", so you can't access its spells.", 2)
+            error("The Player " .. tostring(self.players[arg1].sprite["anim"]) .. " has the ability \"Act\", so you can't access its spells.")
         -- SPELL with wrong index
         elseif newState == "ENEMYSELECT" and arg2 == "SPELL" and (type(arg3) ~= "number" or arg3 < 1 or arg3 > #self.players[arg1].abilities) then
-            error("The state ENEMYSELECT needs its third argument to be the index of an ability (spell) the player has, between 1 and the number of abilities the player has.", 2)
+            error("The state ENEMYSELECT needs its third argument to be the index of an ability (spell) the player has, between 1 and the number of abilities the player has.")
         -- ACT on Player with no Act
         elseif newState == "ENEMYSELECT" and arg2 == "ACT" and not table.containsObj(self.players[arg1].abilities, "Act") then
-            error("The Player " .. tostring(self.players[arg1].sprite["anim"]) .. " doesn't have the ability \"Act\", so you can't access the ACT menu with them.", 2)
+            error("The Player " .. tostring(self.players[arg1].sprite["anim"]) .. " doesn't have the ability \"Act\", so you can't access the ACT menu with them.")
         -- ACT with wrong enemy index
         elseif newState == "ACTMENU" and (type(arg1) ~= "number" or arg1 < 1 or arg1 > #self.enemies) then
-            error("The state ACTMENU needs its first argument to be the index of the enemy we're targeting, between 1 and the number of enemies.", 2)
+            error("The state ACTMENU needs its first argument to be the index of the enemy we're targeting, between 1 and the number of enemies.")
         -- FIGHT with no attacking player table
         elseif newState == "ATTACKING" and (arg1 ~= nil and type(arg1) ~= "table") then
-            error("The state ATTACKING needs its first argument to be a table of tables or nil.", 2)
+            error("The state ATTACKING needs its first argument to be a table of tables or nil.")
         -- FIGHT, check player indexes
         elseif newState == "ATTACKING" and type(arg1) == "table" then
             local attackingPlayers = { }
@@ -557,13 +563,13 @@ return function ()
             for i = 1, #arg1 do
                 local arg1tab = arg1[i]
                 if type(arg1tab) ~= "table" then
-                    error("The state ATTACKING needs its first argument to be a table of tables or nil.", 2)
+                    error("The state ATTACKING needs its first argument to be a table of tables or nil.")
                 else
                     if arg1tab[2] < 1 or arg1tab[2] > #self.enemies then
-                        error("Each of the state ATTACKING's tables of tables must contain two values: first the index of the attacking player then the index of the enemy targeted. The targeted enemy's index is invalid.", 2)
+                        error("Each of the state ATTACKING's tables of tables must contain two values: first the index of the attacking player then the index of the enemy targeted. The targeted enemy's index is invalid.")
                     end
                     if arg1tab[1] < 1 or arg1tab[1] > #self.players then
-                        error("Each of the state ATTACKING's tables of tables must contain two values: first the index of the attacking player then the index of the enemy targeted. The attacking player's index is invalid.", 2)
+                        error("Each of the state ATTACKING's tables of tables must contain two values: first the index of the attacking player then the index of the enemy targeted. The attacking player's index is invalid.")
                     end
                     if table.containsObj(attackingPlayers, arg1tab[1], true) then
                         if CYKDebugLevel > 1 then
@@ -673,7 +679,7 @@ return function ()
                 end
             end
             if not isAlive then
-                error("The state ACTIONSELECT can't be entered if all Players are DOWN!", 2)
+                error("The state ACTIONSELECT can't be entered if all Players are DOWN!")
             end
         end
 
@@ -949,13 +955,33 @@ return function ()
             -- Play the EndBattle animation of each Players and display the end text
             for i = 1, #self.players do
                 self.SetAnim(self.players[i], "EndBattle")
+                if chapter2 then
+                    if self.stronger then
+                        local hpAdd=2
+                        local p_hpAdd=self.players[i].hpAdd
+                        if p_hpAdd~=nil then
+                            if type(p_hpAdd)~="number" then
+                                if CYKDebugLevel>1 then DEBUG("entity.hpAdd must be a number but it was a "..type(p_hpAdd)..". The default value (2) will be used.") end
+                            else
+                                hpAdd=p_hpAdd
+                            end
+                        end
+                        self.players[i].maxhp=self.players[i].maxhp+hpAdd
+                        self.players[i].hp=self.players[i].hp+hpAdd
+                        self.players[i].UpdateUI()
+                    end
+                end
             end
-            self.TxtMgr.SetText({ (self.CrateYourKris and "YOO WONN! WONN 0 PEX N " .. tostring(50 + math.floor((0.75 + math.random() / 4) * self.TP.trueValue)) .. " DEES."
-                                                      or "YOU WON! You earned 0 EXP\rand " .. tostring(50 + math.floor((0.75 + math.random() / 4) * self.TP.trueValue)) .. " D$.") })
+            if self.stronger and chapter2 then
+                PlaySoundOnceThisFrame("lvsound")
+                NewAudio.SetPitch("lvsound", 2)
+            end
+            self.TxtMgr.SetText({ (self.CrateYourKris and "YOO WONN!\nWONN 0 PEX N " .. tostring(50 + math.floor((0.75 + math.random() / 4) * self.TP.trueValue)) .. " DEES.".. ((chapter2 and self.stronger) and "\nYOO R STROONGE!" or "")
+                                                      or "You won!\nGot 0 EXP and " .. tostring(50 + math.floor((0.75 + math.random() / 4) * self.TP.trueValue)) .. " D$.".. ((chapter2 and self.stronger) and "\nYou became stronger." or "")) })
         elseif newState == "DONE" then
             OldState("DONE")
         else
-            error("The state \"" .. tostring(newState) .. "\" doesn't exist.", 2)
+            error("The state \"" .. tostring(newState) .. "\" doesn't exist.")
         end
 
         -- Display one of the Player's UI's choice buttons if needed
@@ -1309,9 +1335,9 @@ return function ()
     -- Forces the current Player's turn to end only if it has been stopped previously
     function self.EndPlayerTurn()
         if not self.stopPlayerTurnProgress then
-            error("You can't use CYK.EndPlayerTurn() if you haven't used CYK.WaitBeforeNextPlayerTurn() in this Player's turn before.", 2)
+            error("You can't use CYK.EndPlayerTurn() if you haven't used CYK.WaitBeforeNextPlayerTurn() in this Player's turn before.")
         elseif self.frame - self.beginPlayerTurn == 0 then
-            error("You can't use CYK.EndPlayerTurn() on the same frame as the one when this Player's turn starts!", 2)
+            error("You can't use CYK.EndPlayerTurn() on the same frame as the one when this Player's turn starts!")
         elseif self.state == "PLAYERTURN" then
             self.Confirm(true)
         elseif CYKDebugLevel > 0 then
@@ -1363,7 +1389,7 @@ return function ()
         if self.state == "PLAYERTURN" then
             if self.stopPlayerTurnProgress then
                 if not self.players[self.turn].UpdateTurn then
-                    error("You need a function named UpdateTurn in the Player " .. self.players[self.turn].sprite["anim"] .. "'s script if you want to use CYK.WaitBeforeNextPlayerTurn() during its turn.", 2)
+                    error("You need a function named UpdateTurn in the Player " .. self.players[self.turn].sprite["anim"] .. "'s script if you want to use CYK.WaitBeforeNextPlayerTurn() during its turn.")
                 else
                     self.players[self.turn].UpdateTurn(self.frame - self.beginPlayerTurn, self.frame)
                 end

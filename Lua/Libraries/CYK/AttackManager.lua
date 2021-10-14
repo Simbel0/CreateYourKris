@@ -341,13 +341,14 @@ return function(CYK)
             color = { 1, 1, 1 }
         end
 
-        CYK.UI.CreateHPChangeText(textValue, target, color)
+        CYK.UI.CreateChangeText(textValue, target, color)
     end
 
     -- Updates the stars that appear when a Player executes a perfect attack
     function CYK.UpdateAttackingPerfectStars()
         for i = #CYK.AtkMgr.attackingPlayers, 1, -1 do
             local attackingPlayer = CYK.AtkMgr.attackingPlayers[i]
+
             -- If there's any star left
             if #attackingPlayer.perfectStars > 0 then
                 -- If the star's anim is complete, remove it
