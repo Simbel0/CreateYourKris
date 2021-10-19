@@ -260,15 +260,19 @@ function AddSpell(name, description, tpCost, targetType)
 end
 
 -- Modify the pourcentage of mercy of an enemy
-function ChangeMercyPercent(val, anim, target)    
-    if not chapter2 then error("entity.AddMercyPercent() is a Chapter 2-only function!\n\nSet chapter2 to true in the Encounter file to access it!") end
+function ChangeMercyPercent(val, text, sound, target)    
+    if not chapter2 then error("entity.ChangeMercyPercent() is a Chapter 2-only function!\n\nSet chapter2 to true in the Encounter file to access it!") end
     if type(val)~="number" then
-        error("entity.AddMercyPercent() needs a number as its first argument.")
+        error("entity.ChangeMercyPercent() needs a number as its first argument.")
     end
-    if anim==nil then anim=true end
+    if text==nil then text=true end
+    if sound==nil then sound=true end
     if target==nil then target=self end
-    if type(anim)~="boolean" then
-        error("entity.AddMercyPercent() needs a boolean as its second argument.")
+    if type(text)~="boolean" then
+        error("entity.ChangeMercyPercent() needs a boolean as its second argument.")
+    end
+    if type(sound)~="boolean" then
+        error("entity.ChangeMercyPercent() needs a boolean as its third argument.")
     end
     local targetString=false
     if type(target)=="string" then
@@ -276,15 +280,15 @@ function ChangeMercyPercent(val, anim, target)
     end
 
     if (type(target)~="table" or (type(target)=="table" and type(target.name)~="string")) and not targetString then
-        error("entity.AddMercyPercent() needs either an enemy or a string saying \"All\" as its third argument.")
+        error("entity.ChangeMercyPercent() needs either an enemy or a string saying \"All\" as its fourth argument.")
     elseif type(target)=="table" and target.IsPlayer() then
-        error("entity.AddMercyPercent() must be used on an enemy.")
+        error("entity.ChangeMercyPercent() must be used on an enemy.")
     end
 
     if target=="All" or target=="all" then
         for i=1,#CYK.enemies do
             if not CYK.enemies[i].useMercyCounter then
-                if CYKDebugLevel>0 then DEBUG("[INFO] entity.AddMercyPercent() was called but the enemy's \"canspare\" has been set to false.") end
+                if CYKDebugLevel>0 then DEBUG("[INFO] entity.ChangeMercyPercent() was called but the enemy's \"canspare\" has been set to false.") end
             else
                 CYK.enemies[i].mercyPercent=CYK.enemies[i].mercyPercent+val
                 if CYK.enemies[i].mercyPercent>100 then CYK.enemies[i].mercyPercent=100
@@ -293,17 +297,21 @@ function ChangeMercyPercent(val, anim, target)
         end
     elseif not targetString then
         if not target.useMercyCounter then
-            if CYKDebugLevel>0 then DEBUG("[INFO] entity.AddMercyPercent() was called but the enemy's \"canspare\" has been set to false.") end
+            if CYKDebugLevel>0 then DEBUG("[INFO] entity.ChangeMercyPercent() was called but the enemy's \"canspare\" has been set to false.") end
             return
         end
         target.mercyPercent=target.mercyPercent+val
         if target.mercyPercent>100 then target.mercyPercent=100
         elseif target.mercyPercent<0 then target.mercyPercent=0 end
     else
-        error("entity.AddMercyPercent() needs either an enemy or a string saying \"All\" as its third argument.")
+        error("entity.ChangeMercyPercent() needs either an enemy or a string saying \"All\" as its fourth argument.")
     end
 
-    if anim then
+    if sound then
+        PlaySoundOnceThisFrame("mercyadd")
+    end
+
+    if text then
         if target=="All" or target=="all" then
             for i=1,#CYK.enemies do
                 CYK.UI.CreateChangeText(val, CYK.enemies[i], nil, true)
