@@ -265,6 +265,8 @@ function ChangeMercyPercent(val, target, text, sound)
     if type(val)~="number" then
         error("entity.ChangeMercyPercent() needs a number as its first argument.")
     end
+    number=math.floor(number+0.5)
+        
     if target==nil then target=self end
     if text  ==nil then text=  true end
     if sound ==nil then sound= true end
