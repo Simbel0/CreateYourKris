@@ -279,8 +279,10 @@ return function ()
                             text = text .. (self.CrateYourKris and "\nBTU NO [color:ffff00]YEELO[color:ffffff]!?!" or "\nBut his name was not [color:ffff00]YELLOW[color:ffffff]...")
                         end
                         self.TxtMgr.SetText({ text })
+                        -- Use a temporary value unaffected by HandleSpare to prevent sparing despite the text saying "But his name was not YELLOW"
+                        local tempMercyPercent=enemy.mercyPercent
                         ProtectedCYKCall(HandleSpare, player, enemy)
-                        if (chapter2 and enemy.mercyPercent>=100) or (not chapter2 and enemy.canspare) then
+                        if (chapter2 and tempMercyPercent>=100) or (not chapter2 and enemy.canspare) then
                             -- Actually spare the enemy
                             enemy.TrySpare()
                         end
@@ -957,17 +959,17 @@ return function ()
                 self.SetAnim(self.players[i], "EndBattle")
                 if chapter2 then
                     if self.stronger then
-                        local hpAdd=2
+                        local hpAdd={2, 2, 2}
                         local p_hpAdd=self.players[i].hpAdd
                         if p_hpAdd~=nil then
                             if type(p_hpAdd)~="number" then
                                 if CYKDebugLevel>1 then DEBUG("entity.hpAdd must be a number but it was a "..type(p_hpAdd)..". The default value (2) will be used.") end
                             else
-                                hpAdd=p_hpAdd
+                                hpAdd[i]=p_hpAdd
                             end
                         end
-                        self.players[i].maxhp=self.players[i].maxhp+hpAdd
-                        self.players[i].hp=self.players[i].hp+hpAdd
+                        self.players[i].maxhp=self.players[i].maxhp+hpAdd[i]
+                        self.players[i].hp=self.players[i].hp+hpAdd[i]
                         self.players[i].UpdateUI()
                     end
                 end

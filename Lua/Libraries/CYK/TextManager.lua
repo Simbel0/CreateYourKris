@@ -37,7 +37,7 @@ return function(CYK)
     self.textArrow.SetPivot(0, 0)
     self.textArrow.SetAnchor(0, 0)
     self.textArrow.SetParent(CYK.UI.hider)
-    self.textArrow.x = 450
+    self.textArrow.x = chapter2 and 390 or 450
     self.textArrow.y = 83
     self.textArrow.alpha = 0
 
@@ -46,7 +46,7 @@ return function(CYK)
     self.textArrowDown.SetAnchor(0, 0)
     self.textArrowDown.SetParent(CYK.UI.hider)
     self.textArrowDown.yscale = -1
-    self.textArrowDown.x = 450
+    self.textArrowDown.x = chapter2 and 390 or 450
     self.textArrowDown.y = 17
     self.textArrowDown.alpha = 0
     self.textArrows = { self.textArrow, self.textArrowDown }
@@ -326,7 +326,7 @@ return function(CYK)
                         lifebarHPText.SetFont("uidialog")
                         lifebarHPText.HideBubble()
                         lifebarHPText.progressmode="none"
-                        if i>1 then lifebarHPText.color={0,0,0} end
+                        if i%3==0 or i==2 then lifebarHPText.color={0,0,0} end
 
                         mercybar1 = CreateSprite("px", "LowerUI")
                         mercybar1.SetParent(CYK.UI.hider)
@@ -374,7 +374,7 @@ return function(CYK)
                         mercybarMERCYText.HideBubble()
                         mercybarMERCYText.progressmode="none"
                         mercybarMERCYTextCreated=true
-                        if i>1 then mercybarMERCYText.color={0,0,0} end
+                        if i%3==0 or i==2 then mercybarMERCYText.color={0,0,0} end
                     end
                 end
 

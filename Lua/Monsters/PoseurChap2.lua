@@ -20,7 +20,7 @@ AddAct("Pose", "Show him who's cool!", 5, { "Ralsei" })
 AddAct("MegaPose", "Menacing coolness", 10, { "Ralsei", "Susie" })
 
 name = "Poseur"
-hp = 200
+hp = 250
 atk = 10
 def = 2
 dialogbubble = "DRBubble" -- See documentation for what bubbles you have available.
@@ -110,26 +110,26 @@ function HandleCustomCommand(user, command)
     elseif command == "MegaPose" then
         local megaposecount = GetGlobal("megaposecount")
         if megaposecount==0 then
-            ChangeMercyPercent(30, true, "All")
+            ChangeMercyPercent(30, "All", true, true)
             text = {"Kris almost broke his arm trying to pose!","All Poseurs are impressed!"}
             CYK.enemies[1]["currentdialogue"]={"Good job Kris"}
             CYK.enemies[2]["currentdialogue"]={"Nice Kris"}
             CYK.enemies[3]["currentdialogue"]={"Wow Kris"}
             SetCYKAnimation("Idle") -- refresh the animation
         elseif megaposecount==1 then
-            ChangeMercyPercent(40, true, "All")
+            ChangeMercyPercent(40, "All", true, true)
             CYK.enemies[1]["currentdialogue"]={"Your head is cool, Susie"}
             CYK.enemies[2]["currentdialogue"]={"Soon Susie, soon..."}
             CYK.enemies[3]["currentdialogue"]={"If reminds me of when I first posed.","[noskip]I mean...[w:10][next]","Cool Susie"}
             text = {"Susie fell head first while trying to pose!", "The Poseurs thought it was voluntary and applaud (while continuing to pose)."}
         elseif megaposecount==2 then
-            ChangeMercyPercent(-30, true, "All")
+            ChangeMercyPercent(-30, "All", true, true)
             CYK.enemies[1]["currentdialogue"]={"Ouch Ralsei"}
             CYK.enemies[2]["currentdialogue"]={"It comes with time Ralsei"}
             CYK.enemies[3]["currentdialogue"]={"...Ralsei"}
             text = {"Ralsei slipped on his scarf trying to pose!", "The Poseurs respect the fact that he tried but weren't impressed at all."}
         elseif megaposecount==3 then
-            ChangeMercyPercent(100, true, "All")
+            ChangeMercyPercent(100, "All", true, true)
             CYK.enemies[1]["currentdialogue"]={"OH"}
             CYK.enemies[2]["currentdialogue"]={"", "NOOOOOOOOOO"}
             CYK.enemies[3]["currentdialogue"]={"", "", "OOOOOOOOOOOOOOOO"}
