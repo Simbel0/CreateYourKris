@@ -386,7 +386,7 @@ return function(CYK)
                         mercybar2.xscale = 81 * targetPool[i].mercyPercent / 100
                     end
                     if lifebarText then
-                        lifebarText.SetText("[instant]"..math.floor((targetPool[i].hp*100)/targetPool[i].maxhp).."%")
+                        lifebarText.SetText("[instant]"..math.floor(((targetPool[i].hp*100)/targetPool[i].maxhp)+0.5).."%")
                     end
                     if mercybarText then
                         mercybarText.SetText("[instant]"..targetPool[i].mercyPercent.."%")
