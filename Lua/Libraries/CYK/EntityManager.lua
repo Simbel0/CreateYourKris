@@ -304,50 +304,43 @@ return function(self)
         local tab = { }
         local pool = isPlayer and self.players or self.enemies
         for i = 1, #pool do
-            if pool[i].hp > 0 then
-                table.insert(tab, i)
+            if pool[i].hp > 0 and pool[i].isactive then
+                table.insert(tab, pool[i].ID)
             end
         end
         return tab
     end
 
-    -- Gets an entity in the active players or active enemies table related to the entity given as parameter
-    -- (Can be this entity itself or an entity which is after it in the active entity table)
-    function self.GetEntityUp(target, arg2)
-        local oldTarget = target
+    -- Retrieves an entity from the active players or enemies table related to the entity given as parameter
+    -- (Can be the entity itself or an entity which follows it in the active entity table)
+    function self.GetEntityUp(target, isPlayer, returnAsID)
+        if not returnAsID then returnAsID = isPlayer end
+        local returnedTarget = target
         if type(target) == "number" then
-            target = arg2 and self.players[target] or self.enemies[target]
+            target = isPlayer and self.allPlayers[target] or self.allEnemies[target]
         end
         local pool = target.UI and self.players or self.enemies
         if not target.isactive or target.hp < 0 then
-            if arg2 then
-                local targetID = self.GetEntityCurrentOrHypotheticalID(target)
-                if targetID > #pool then
-                    targetID = 1
-                end
-                local i = targetID
-                repeat
-                    i = i + 1
-                    if i > #pool then
-                        i = 1
-                    end
-                    if pool[i].hp > 0 and pool[i].isactive then
-                        return i
-                    end
-                until i == targetID
-                return i
-            else
-                local availableTargets = { }
-                for i = 1, #pool do
-                    if pool[i].hp > 0 then
-                        table.insert(availableTargets, i)
-                    end
-                end
-                target = availableTargets[math.random(1, #availableTargets)]
-                return target
+            -- Try to fetch the next entity in the available entity list
+            local targetID = self.GetEntityCurrentOrHypotheticalID(target)
+            if targetID > #pool then
+                targetID = 1
             end
+            local i = targetID
+            repeat
+                if i > #pool then
+                    i = 1
+                end
+                if pool[i].hp > 0 and pool[i].isactive then
+                    break
+                end
+                i = i + 1
+            until i == targetID
+            returnedTarget = i
         end
-        return oldTarget
+        return (returnAsID and type(returnedTarget) ~= "number") and returnedTarget.ID or
+               (not returnAsID and type(returnedTarget) == "number") and (isPlayer and self.players[returnedTarget] or self.enemies[returnedTarget]) or
+               returnedTarget
     end
 
     -- Returns a table with some values related to the commands of an enemy and their availability
@@ -564,7 +557,7 @@ return function(self)
             self.lastBgAnim = self.Background.anim
             if self.Background.maxHideTimer > 0 then
                 for i = 1, #self.players do
-                    if self.players[i].hp <= 0 or (self.playerTargets[1] ~= 0 and not table.containsObj(self.playerTargets, i, true)) then
+                    if self.players[i].hp <= 0 or (self.playerTargets[1] ~= 0 and not table.containsObj(self.playerTargets, self.players[i].ID, true)) then
                         local coeff = self.Background.hideTimer / self.Background.maxHideTimer * 0.5
                         self.players[i].sprite["f"].alpha = self.Background.anim == "show" and coeff or 0.5 - coeff
                         self.players[i].sprite["f"].color = { 0, 0, 0 }
@@ -575,7 +568,7 @@ return function(self)
             end
         elseif self.lastBgAnim then
             for i = 1, #self.players do
-                if self.players[i].hp <= 0 or (self.playerTargets[1] ~= 0 and not table.containsObj(self.playerTargets, i, true)) then
+                if self.players[i].hp <= 0 or (self.playerTargets[1] ~= 0 and not table.containsObj(self.playerTargets, self.players[i].ID, true)) then
                     self.players[i].sprite["f"].alpha = self.lastBgAnim == "show" and 0 or 0.5
                 else
                     self.players[i].sprite["f"].alpha = 0
